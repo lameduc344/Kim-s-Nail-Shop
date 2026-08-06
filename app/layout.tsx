@@ -3,9 +3,9 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kimsnails.com"),
-  title: "Kim's Nails | A luxury nail studio",
-  description: "Thoughtful nail care, artfully done in New York.",
-  openGraph: { title: "Kim's Nails | A luxury nail studio", description: "Thoughtful nail care, artfully done in New York.", type: "website", locale: "en_US" },
+  title: "Kim's Nails | Luxury nail care celebrating Black beauty",
+  description: "Thoughtful, artful nail care in New York, celebrating Black and African American beauty.",
+  openGraph: { title: "Kim's Nails | Luxury nail care celebrating Black beauty", description: "Thoughtful, artful nail care in New York, celebrating Black and African American beauty.", type: "website", locale: "en_US" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
