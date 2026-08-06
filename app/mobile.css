@@ -221,8 +221,26 @@
   .booking,
   .service-grid,
   .portfolio-grid,
-  .value-cards {
+  .value-cards,
+  .testimonial-grid {
     grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .testimonials-header {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+    margin-bottom: 38px;
+  }
+
+  .testimonials-header .eyebrow,
+  .testimonials-header h2,
+  .testimonials-header > p:last-child {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .testimonial-card {
+    min-height: 0;
   }
 
   .section-header {
