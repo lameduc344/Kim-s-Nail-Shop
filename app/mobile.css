@@ -71,10 +71,7 @@
     width: 100%;
   }
 
-  .service-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
+  .service-grid,
   .portfolio-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -87,30 +84,42 @@
 
 @media (max-width: 700px) {
   .shell {
-    width: min(100% - 32px, 1280px);
+    width: min(100% - 32px, 1280px) !important;
+  }
+
+  /* Make the phone header a deliberate mobile version of the current production header. */
+  .site-header.inverse {
+    background: rgba(248, 241, 235, .97);
+    padding-bottom: 12px;
   }
 
   .nav {
-    padding-top: 18px;
-  }
-
-  /* globals.css hides this on phones; keep the same production navigation available. */
-  .nav-links {
-    display: flex;
-    gap: 18px;
-    margin-top: 2px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px 14px;
+    padding-top: 14px;
   }
 
   .brand {
     font-size: 18px;
+    min-width: 0;
   }
 
   .nav-actions {
-    gap: 10px;
+    width: auto;
+    margin-left: 0;
+    justify-self: end;
+    gap: 9px;
+  }
+
+  .translate-button,
+  .book-link {
+    min-height: 38px;
   }
 
   .book-link {
-    font-size: 11px;
+    font-size: 10px;
     white-space: nowrap;
   }
 
@@ -119,41 +128,85 @@
     padding: 0 2px;
   }
 
+  /* globals.css hides these under 700px. Keep the current production destinations available. */
+  .nav-links {
+    grid-column: 1 / -1;
+    order: initial;
+    width: 100%;
+    display: flex !important;
+    gap: 19px;
+    margin: 0;
+    padding: 3px 0 4px;
+    overflow-x: auto;
+    font-size: 10px;
+  }
+
+  .nav-links a {
+    min-height: 30px;
+  }
+
+  /* Current production hero, recomposed specifically for portrait phones. */
   .hero {
-    min-height: 720px;
-    background-image: linear-gradient(180deg, rgba(20,8,7,.68) 0%, rgba(20,8,7,.30) 40%, rgba(20,8,7,.72) 100%), url('/images/black-beauty-signature-manicure.png');
-    background-position: 56% center;
+    height: auto !important;
+    min-height: min(820px, 100svh);
+    max-height: none !important;
+    background-image:
+      linear-gradient(180deg, rgba(20,8,7,.22) 0%, rgba(20,8,7,.18) 34%, rgba(20,8,7,.72) 100%),
+      url('/images/black-beauty-signature-manicure.png') !important;
+    background-size: cover !important;
+    background-position: 62% 46% !important;
   }
 
   .hero-content {
-    min-height: 590px;
-    gap: 28px;
-    padding: 64px 0 86px;
+    min-height: 620px;
+    justify-content: flex-end;
+    gap: 22px;
+    padding: 42px 0 48px !important;
+  }
+
+  .hero-content > .eyebrow {
+    margin-bottom: 0;
+    max-width: 34ch;
+    font-size: 9px;
+    line-height: 1.45;
   }
 
   .hero h1 {
-    max-width: 8.8ch;
-    font-size: clamp(48px, 15vw, 66px);
-    line-height: .92;
+    max-width: 8.7ch;
+    margin: 0;
+    font-size: clamp(45px, 13.7vw, 62px) !important;
+    line-height: .91;
+    text-wrap: balance;
   }
 
   .hero-bottom {
+    width: 100%;
     align-items: flex-start;
     flex-direction: column;
-    gap: 24px;
+    gap: 18px;
   }
 
   .hero-bottom p {
-    max-width: 32ch;
-    font-size: 13px;
+    max-width: 31ch;
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+  .hero-bottom .button {
+    width: 100%;
+    max-width: 290px;
+  }
+
+  .scroll-note {
+    display: none !important;
   }
 
   .section-space,
   .services,
   .gallery-section,
   .values {
-    padding-top: 76px;
-    padding-bottom: 76px;
+    padding-top: 72px;
+    padding-bottom: 72px;
   }
 
   .intro-grid,
@@ -165,45 +218,108 @@
   .contact-grid,
   .footer-vip,
   .weekly-promotion,
-  .booking {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
+  .booking,
   .service-grid,
   .portfolio-grid,
   .value-cards {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) !important;
   }
 
-  .service-image,
+  .section-header {
+    gap: 18px;
+    margin-bottom: 32px;
+  }
+
+  .intro h2,
+  .section-header h2,
+  .feature h2,
+  .booking h2 {
+    font-size: clamp(39px, 11.5vw, 52px);
+    line-height: .94;
+  }
+
+  .value-strip {
+    margin-top: 54px;
+  }
+
+  .service-grid {
+    gap: 34px;
+  }
+
+  .service-image {
+    width: 100%;
+    height: auto !important;
+    min-height: 0;
+    aspect-ratio: 1 / 1.04;
+  }
+
+  .feature {
+    gap: 34px;
+  }
+
   .feature-photo,
   .story-image,
   .before-after-image,
   .booking-image,
   .contact-map {
     width: 100%;
-    height: auto;
-    min-height: 340px;
+    height: auto !important;
+    min-height: 0 !important;
     aspect-ratio: 4 / 5;
   }
 
-  .service-image {
-    aspect-ratio: 1 / 1.08;
-    min-height: 0;
+  .feature-photo-copy {
+    inset: auto 18px 20px;
+  }
+
+  .feature-photo-copy strong {
+    font-size: clamp(25px, 8vw, 34px);
   }
 
   .gallery-section .portfolio-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin-left: -16px;
-    margin-right: -16px;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 2px;
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .gallery-section .portfolio-card img {
-    height: auto;
+    height: auto !important;
     aspect-ratio: 4 / 5;
   }
 
-  .booking-content,
+  .weekly-promotion-wrap {
+    margin-top: 58px;
+  }
+
+  .weekly-promotion {
+    gap: 22px;
+    padding: 26px 22px;
+  }
+
+  .promotion-code {
+    border-left: 0;
+    border-top: 1px solid #a89288;
+    padding: 18px 0 0;
+  }
+
+  .weekly-promotion small {
+    grid-column: auto;
+  }
+
+  .quote {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .quote blockquote {
+    font-size: clamp(28px, 8vw, 38px);
+  }
+
+  .booking-content {
+    padding: 54px 24px !important;
+  }
+
   .booking-form,
   .positions-filled {
     padding-left: 24px;
@@ -219,6 +335,10 @@
   .booking-form textarea,
   .vip-input-row input {
     font-size: 16px;
+  }
+
+  .footer-vip {
+    gap: 28px;
   }
 
   .footer-top,
@@ -241,38 +361,52 @@
     min-height: 46px;
   }
 
+  .page-hero {
+    padding: 70px 0 58px;
+  }
+
   .page-hero h1,
   .booking-page h1,
   .admin-placeholder h1 {
     overflow-wrap: anywhere;
+    font-size: clamp(48px, 15vw, 72px);
   }
 }
 
 @media (max-width: 430px) {
   .shell {
-    width: min(100% - 24px, 1280px);
+    width: min(100% - 24px, 1280px) !important;
   }
 
   .nav {
-    gap: 12px;
+    gap: 7px 10px;
+  }
+
+  .brand {
+    font-size: 17px;
   }
 
   .nav-actions {
-    width: auto;
+    gap: 7px;
   }
 
   .nav-links {
     gap: 15px;
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .hero {
-    min-height: 690px;
-    background-position: 60% center;
+    min-height: min(780px, 100svh);
+    background-position: 64% 48% !important;
+  }
+
+  .hero-content {
+    min-height: 570px;
+    padding-bottom: 40px !important;
   }
 
   .hero h1 {
-    font-size: clamp(44px, 14vw, 58px);
+    font-size: clamp(42px, 13.5vw, 56px) !important;
   }
 
   .section-header h2,
@@ -284,14 +418,13 @@
   }
 
   .gallery-section .portfolio-grid {
-    margin-left: -12px;
-    margin-right: -12px;
+    gap: 2px;
   }
 
   .weekly-promotion,
   .booking-form,
   .positions-filled {
-    padding: 24px 18px;
+    padding: 22px 18px;
   }
 
   .page-cta {
