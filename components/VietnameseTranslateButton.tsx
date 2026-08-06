@@ -28,11 +28,12 @@ function setTranslationCookie(language: Language) {
 }
 
 export function VietnameseTranslateButton() {
-  const [language, setLanguage] = useState<Language>(() =>
-    typeof window !== "undefined" && window.localStorage.getItem(STORAGE_KEY) === "vi" ? "vi" : "en",
-  );
+  const [language, setLanguage] = useState<Language>("en");
 
   useEffect(() => {
+    const animationFrame = window.requestAnimationFrame(() => {
+      setLanguage(window.localStorage.getItem(STORAGE_KEY) === "vi" ? "vi" : "en");
+    });
     const translateWindow = window as GoogleTranslateWindow;
 
     const initializeTranslate = () => {
@@ -64,6 +65,8 @@ export function VietnameseTranslateButton() {
       script.async = true;
       document.body.appendChild(script);
     }
+
+    return () => window.cancelAnimationFrame(animationFrame);
   }, []);
 
   function switchLanguage() {
