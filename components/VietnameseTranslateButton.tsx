@@ -28,12 +28,11 @@ function setTranslationCookie(language: Language) {
 }
 
 export function VietnameseTranslateButton() {
-  const [language, setLanguage] = useState<Language>("en");
+  const [language, setLanguage] = useState<Language>(() =>
+    typeof window !== "undefined" && window.localStorage.getItem(STORAGE_KEY) === "vi" ? "vi" : "en",
+  );
 
   useEffect(() => {
-    const preferred = window.localStorage.getItem(STORAGE_KEY) === "vi" ? "vi" : "en";
-    setLanguage(preferred);
-
     const translateWindow = window as GoogleTranslateWindow;
 
     const initializeTranslate = () => {
