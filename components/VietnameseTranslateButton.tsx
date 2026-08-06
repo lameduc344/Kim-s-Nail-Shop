@@ -34,6 +34,21 @@ export function VietnameseTranslateButton() {
     const animationFrame = window.requestAnimationFrame(() => {
       setLanguage(window.localStorage.getItem(STORAGE_KEY) === "vi" ? "vi" : "en");
     });
+    const hideGoogleTranslateUi = () => {
+      document.body.style.setProperty("top", "0", "important");
+      document
+        .querySelectorAll<HTMLElement>(
+          "iframe.goog-te-banner-frame, .goog-te-banner-frame, body > .skiptranslate, body > [class*='VIpgJd-ZVi9od']",
+        )
+        .forEach((element) => {
+          if (element.id !== "google_translate_element") {
+            element.style.setProperty("display", "none", "important");
+          }
+        });
+    };
+    const googleUiObserver = new MutationObserver(hideGoogleTranslateUi);
+    googleUiObserver.observe(document.body, { childList: true, subtree: true });
+    hideGoogleTranslateUi();
     const translateWindow = window as GoogleTranslateWindow;
 
     const initializeTranslate = () => {
@@ -66,7 +81,10 @@ export function VietnameseTranslateButton() {
       document.body.appendChild(script);
     }
 
-    return () => window.cancelAnimationFrame(animationFrame);
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      googleUiObserver.disconnect();
+    };
   }, []);
 
   function switchLanguage() {
