@@ -6,7 +6,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { openPositions } from "@/data/careers";
 
-export const metadata: Metadata = { title: "Careers | Kim's Nails", description: "Explore career opportunities at Kim's Nails, a luxury nail studio in New York." };
+export const metadata: Metadata = { title: "Careers | Kim's Nails", description: "Explore career opportunities at Kim's Nails, a luxury nail studio in New York.", alternates: { canonical: "/employment" } };
 
 export default function EmploymentPage() {
   const hasOpenPositions = openPositions.length > 0;

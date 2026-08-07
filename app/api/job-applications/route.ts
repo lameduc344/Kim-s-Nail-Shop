@@ -1,4 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
+import { createHmac } from "node:crypto";
+import { PRIVACY_POLICY_VERSION } from "@/lib/site";
 
 export const runtime = "nodejs";
 const BUCKET = "job-application-files";
@@ -22,8 +24,9 @@ export async function POST(request: Request) {
     const fullName = value(formData, "fullName", 120), phone = value(formData, "phone", 40), email = value(formData, "email", 180).toLowerCase();
     const desiredRole = value(formData, "desiredRole", 120), experience = value(formData, "experience", 2500), licenseStatus = value(formData, "licenseStatus", 120);
     const availability = value(formData, "availability", 1000), portfolioUrl = value(formData, "portfolioUrl", 500), message = value(formData, "message", 2500);
+    const privacyAccepted = formData.get("privacyAccepted") === "on";
     const resume = formData.get("resume");
-    if (!fullName || !phone || !/^\S+@\S+\.\S+$/.test(email) || !desiredRole || !experience || !licenseStatus || !availability || !message) return Response.json({ message: "Please complete every required field." }, { status: 400 });
+    if (!fullName || !phone || !/^\S+@\S+\.\S+$/.test(email) || !desiredRole || !experience || !licenseStatus || !availability || !message || !privacyAccepted) return Response.json({ message: "Please complete every required field and accept the applicant-data notice." }, { status: 400 });
     if (portfolioUrl) { try { new URL(portfolioUrl); } catch { return Response.json({ message: "Please enter a complete portfolio URL." }, { status: 400 }); } }
     if (!(resume instanceof File) || resume.size === 0) return Response.json({ message: "Please attach your résumé." }, { status: 400 });
     if (resume.size > MAX_FILE_SIZE) return Response.json({ message: "Your résumé must be 4 MB or smaller." }, { status: 413 });
@@ -35,10 +38,15 @@ export async function POST(request: Request) {
     const supabaseUrl = process.env.SUPABASE_URL, serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!supabaseUrl || !serviceRoleKey) { console.error("Careers submission is missing server-side Supabase configuration."); return Response.json({ message: "Applications are temporarily unavailable. Please try again later." }, { status: 503 }); }
     const supabase = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
+    const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
+    const identifierHash = createHmac("sha256", serviceRoleKey).update(forwardedFor).digest("hex");
+    const { data: allowed, error: rateLimitError } = await supabase.rpc("check_submission_rate_limit", { p_endpoint: "job-applications", p_identifier_hash: identifierHash, p_limit: 5, p_window_seconds: 3600 });
+    if (rateLimitError) { console.error("Careers rate-limit check failed", rateLimitError); return Response.json({ message: "Applications are temporarily unavailable. Please try again later." }, { status: 503 }); }
+    if (!allowed) return Response.json({ message: "Too many applications were sent from this connection. Please try again later." }, { status: 429 });
     const applicationId = crypto.randomUUID(), storagePath = `${applicationId}/resume.${extension}`;
     const { error: uploadError } = await supabase.storage.from(BUCKET).upload(storagePath, bytes, { contentType: fileTypes[extension], upsert: false });
     if (uploadError) throw uploadError;
-    const { error: insertError } = await supabase.from("job_applications").insert({ id: applicationId, full_name: fullName, phone, email, desired_role: desiredRole, experience, license_status: licenseStatus, availability, portfolio_url: portfolioUrl || null, message, resume_path: storagePath, resume_filename: resume.name.slice(0, 255), resume_mime_type: fileTypes[extension], resume_size: resume.size, status: "new", source: "website" });
+    const { error: insertError } = await supabase.from("job_applications").insert({ id: applicationId, full_name: fullName, phone, email, desired_role: desiredRole, experience, license_status: licenseStatus, availability, portfolio_url: portfolioUrl || null, message, resume_path: storagePath, resume_filename: resume.name.slice(0, 255), resume_mime_type: fileTypes[extension], resume_size: resume.size, privacy_policy_version: PRIVACY_POLICY_VERSION, privacy_acknowledged_at: new Date().toISOString(), status: "new", source: "website" });
     if (insertError) { await supabase.storage.from(BUCKET).remove([storagePath]); throw insertError; }
     return Response.json({ message: "Thank you. Your application has been received." }, { status: 201 });
   } catch (error) {
