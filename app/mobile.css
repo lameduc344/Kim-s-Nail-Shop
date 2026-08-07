@@ -28,8 +28,6 @@
     gap: 22px;
     overflow-x: auto;
     padding: 4px 0 10px;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
   }
 
   .nav-links::-webkit-scrollbar {
@@ -205,7 +203,6 @@
     margin: 0;
     font-size: clamp(45px, 13.7vw, 62px) !important;
     line-height: .91;
-    text-wrap: balance;
   }
 
   .hero-bottom {
