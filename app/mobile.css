@@ -118,9 +118,11 @@
   }
 
   .nav-actions {
-    width: auto;
+    grid-column: 1 / -1;
+    width: 100%;
     margin-left: 0;
     justify-self: end;
+    justify-content: flex-end;
     gap: 9px;
   }
 
@@ -267,6 +269,22 @@
 
   .testimonial-card {
     min-height: 0;
+  }
+
+  .application-wrap {
+    margin-top: 60px;
+  }
+
+  .job-application-form {
+    padding: 28px 20px;
+  }
+
+  .job-application-form .form-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .job-application-form .button {
+    width: 100%;
   }
 
   .section-header {
