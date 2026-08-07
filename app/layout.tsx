@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { DeploymentVersionWatcher } from "@/components/DeploymentVersionWatcher";
+import { getDeploymentVersion } from "@/lib/deployment-version";
 import "./globals.css";
 import "./mobile.css";
 
@@ -10,12 +12,14 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  const deploymentVersion = getDeploymentVersion();
+
   return (
     <html
       lang="en"
       className="h-full antialiased"
     >
-      <body className="min-h-full flex flex-col">{children}<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "NailSalon", name: "Kim's Nails", priceRange: "$$", telephone: "+1-212-555-0184", email: "hello@kimsnails.com", address: { "@type": "PostalAddress", streetAddress: "128 Mott Street", addressLocality: "New York", addressRegion: "NY", postalCode: "10013", addressCountry: "US" }, openingHoursSpecification: [{ "@type": "OpeningHoursSpecification", dayOfWeek: ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "10:00", closes: "19:00" }] }) }} /></body>
+      <body className="min-h-full flex flex-col"><DeploymentVersionWatcher currentVersion={deploymentVersion} />{children}<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "NailSalon", name: "Kim's Nails", priceRange: "$$", telephone: "+1-212-555-0184", email: "hello@kimsnails.com", address: { "@type": "PostalAddress", streetAddress: "128 Mott Street", addressLocality: "New York", addressRegion: "NY", postalCode: "10013", addressCountry: "US" }, openingHoursSpecification: [{ "@type": "OpeningHoursSpecification", dayOfWeek: ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "10:00", closes: "19:00" }] }) }} /></body>
     </html>
   );
 }
