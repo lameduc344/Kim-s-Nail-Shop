@@ -102,8 +102,21 @@
   }
 
   .brand {
-    font-size: 18px;
+    gap: 6px;
+    font-size: 23px;
     min-width: 0;
+  }
+
+  .brand i {
+    font-size: 10px;
+  }
+
+  .brand-diamond {
+    font-size: 11px;
+  }
+
+  .brand-diamond-outline {
+    display: none;
   }
 
   .nav-actions {
@@ -119,8 +132,24 @@
   }
 
   .book-link {
-    font-size: 10px;
+    font-size: 14px;
     white-space: nowrap;
+  }
+
+  .book-diamond {
+    font-size: 10px;
+  }
+
+  .translate-button {
+    font-size: 14px;
+  }
+
+  .translate-button span {
+    font-size: 15px;
+  }
+
+  .translate-button b {
+    font-size: 12px;
   }
 
   .translate-button {
@@ -138,7 +167,7 @@
     margin: 0;
     padding: 3px 0 4px;
     overflow-x: auto;
-    font-size: 10px;
+    font-size: 15px;
   }
 
   .nav-links a {

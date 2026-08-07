@@ -17,6 +17,26 @@ type GoogleTranslateWindow = Window & {
 };
 
 const STORAGE_KEY = "kims-nails-language";
+const TRANSLATE_SELECT = ".goog-te-combo";
+
+function waitForTranslateSelect(timeoutMs = 8000) {
+  return new Promise<HTMLSelectElement | null>((resolve) => {
+    const existingSelect = document.querySelector<HTMLSelectElement>(TRANSLATE_SELECT);
+    if (existingSelect) {
+      resolve(existingSelect);
+      return;
+    }
+
+    const startedAt = Date.now();
+    const interval = window.setInterval(() => {
+      const select = document.querySelector<HTMLSelectElement>(TRANSLATE_SELECT);
+      if (select || Date.now() - startedAt >= timeoutMs) {
+        window.clearInterval(interval);
+        resolve(select);
+      }
+    }, 100);
+  });
+}
 
 function setTranslationCookie(language: Language) {
   if (language === "vi") {
@@ -29,6 +49,7 @@ function setTranslationCookie(language: Language) {
 
 export function VietnameseTranslateButton() {
   const [language, setLanguage] = useState<Language>("en");
+  const [isSwitching, setIsSwitching] = useState(false);
 
   useEffect(() => {
     const animationFrame = window.requestAnimationFrame(() => {
@@ -87,7 +108,9 @@ export function VietnameseTranslateButton() {
     };
   }, []);
 
-  function switchLanguage() {
+  async function switchLanguage() {
+    if (isSwitching) return;
+
     const nextLanguage: Language = language === "en" ? "vi" : "en";
     window.localStorage.setItem(STORAGE_KEY, nextLanguage);
     setTranslationCookie(nextLanguage);
@@ -98,14 +121,22 @@ export function VietnameseTranslateButton() {
       return;
     }
 
-    const select = document.querySelector<HTMLSelectElement>(".goog-te-combo");
+    setIsSwitching(true);
+    const select = await waitForTranslateSelect();
     if (select) {
       select.value = "vi";
       select.dispatchEvent(new Event("change"));
+      setIsSwitching(false);
       return;
     }
 
-    window.location.reload();
+    // The legacy widget can be delayed or blocked in production. Fall back to
+    // Google's hosted translator so the control always has a working path.
+    const translateUrl = new URL("https://translate.google.com/translate");
+    translateUrl.searchParams.set("sl", "en");
+    translateUrl.searchParams.set("tl", "vi");
+    translateUrl.searchParams.set("u", window.location.href);
+    window.location.assign(translateUrl.toString());
   }
 
   return (
@@ -115,8 +146,9 @@ export function VietnameseTranslateButton() {
         className="translate-button"
         type="button"
         onClick={switchLanguage}
-        title={language === "en" ? "Switch to Vietnamese" : "Switch to English"}
-        aria-label={language === "en" ? "Switch site language to Vietnamese" : "Switch site language to English"}
+        disabled={isSwitching}
+        title={isSwitching ? "Loading Vietnamese translation" : language === "en" ? "Switch to Vietnamese" : "Switch to English"}
+        aria-label={isSwitching ? "Loading Vietnamese translation" : language === "en" ? "Switch site language to Vietnamese" : "Switch site language to English"}
       >
         <span style={{ fontWeight: language === "en" ? 700 : 400 }}>EN</span>
         <span aria-hidden="true">/</span>
