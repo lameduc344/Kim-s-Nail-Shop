@@ -150,9 +150,9 @@ export function VietnameseTranslateButton() {
         title={isSwitching ? "Loading Vietnamese translation" : language === "en" ? "Switch to Vietnamese" : "Switch to English"}
         aria-label={isSwitching ? "Loading Vietnamese translation" : language === "en" ? "Switch site language to Vietnamese" : "Switch site language to English"}
       >
-        <span style={{ fontWeight: language === "en" ? 700 : 400 }}>EN</span>
+        <span style={{ fontWeight: language === "en" ? 700 : 400 }}>English</span>
         <span aria-hidden="true">/</span>
-        <span style={{ fontWeight: language === "vi" ? 700 : 400 }}>VI</span>
+        <span style={{ fontWeight: language === "vi" ? 700 : 400 }}>Vietnamese</span>
       </button>
     </>
   );

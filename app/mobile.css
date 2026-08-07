@@ -28,8 +28,6 @@
     gap: 22px;
     overflow-x: auto;
     padding: 4px 0 10px;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
   }
 
   .nav-links::-webkit-scrollbar {
@@ -120,9 +118,11 @@
   }
 
   .nav-actions {
-    width: auto;
+    grid-column: 1 / -1;
+    width: 100%;
     margin-left: 0;
     justify-self: end;
+    justify-content: flex-end;
     gap: 9px;
   }
 
@@ -205,7 +205,6 @@
     margin: 0;
     font-size: clamp(45px, 13.7vw, 62px) !important;
     line-height: .91;
-    text-wrap: balance;
   }
 
   .hero-bottom {
@@ -270,6 +269,22 @@
 
   .testimonial-card {
     min-height: 0;
+  }
+
+  .application-wrap {
+    margin-top: 60px;
+  }
+
+  .job-application-form {
+    padding: 28px 20px;
+  }
+
+  .job-application-form .form-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .job-application-form .button {
+    width: 100%;
   }
 
   .section-header {
