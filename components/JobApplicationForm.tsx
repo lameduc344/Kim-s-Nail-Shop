@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useRef, useState } from "react";
+import Link from "next/link";
 
 type SubmissionState = { kind: "idle" | "submitting" | "success" | "error"; message: string };
 const initialState: SubmissionState = { kind: "idle", message: "" };
@@ -34,10 +35,11 @@ export function JobApplicationForm() {
       <label>Portfolio or social link <span className="optional">Optional</span><input name="portfolioUrl" type="url" inputMode="url" maxLength={500} placeholder="https://" /></label>
       <label>Why would you like to join Kim&apos;s Nails?<textarea name="message" required maxLength={2500} rows={5} /></label>
       <label className="file-field">Résumé — PDF, DOC, or DOCX<input name="resume" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required /><small>Maximum file size: 4 MB. Please do not include sensitive identification numbers.</small></label>
+      <label className="application-consent"><input name="privacyAccepted" type="checkbox" required /><span>I have read the <Link href="/privacy" target="_blank">privacy and applicant-data notice</Link> and understand how my application and résumé will be handled.</span></label>
       <label className="application-honeypot" aria-hidden="true">Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
       <button className="button button-dark" type="submit" disabled={state.kind === "submitting"}>{state.kind === "submitting" ? "Sending…" : "Submit application"}</button>
       <p className={`application-status ${state.kind}`} aria-live="polite">{state.message}</p>
-      <p className="form-note">Your application and résumé are stored privately and reviewed only for hiring.</p>
+      <p className="form-note">Your application and résumé are stored privately and reviewed only for hiring. The policy version is recorded with your submission.</p>
     </form>
   );
 }
