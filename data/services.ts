@@ -34,9 +34,10 @@ export const services: ServiceCategory[] = [
     category: "Enhancements",
     image: "https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=900&q=85",
     items: [
-      { name: "Acrylic Full Set", price: "$65", duration: "90 min", description: "A custom-shaped set with your choice of finish." },
+      { name: "Acrylic Full Set", price: "$65", duration: "90 min", description: "A custom-shaped set with your choice of finish, from rich solids to statement art." },
       { name: "Gel X Extensions", price: "$75", duration: "90 min", description: "Lightweight, flexible extensions with a natural feel." },
       { name: "Dip Powder", price: "$55", duration: "75 min", description: "Durable, richly pigmented color without a UV finish." },
+      { name: "Freestyle Nail Art", price: "$20+", duration: "30 min", description: "Custom art, chrome, gems, and expressive details designed around your vision." },
     ],
   },
 ];
