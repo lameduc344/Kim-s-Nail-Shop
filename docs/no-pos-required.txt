@@ -1,0 +1,1 @@
+POS independence: customer booking, QR check-in, walk-ins, Today Board, service catalog, and status tracking do not require a local POS connection.
