@@ -1,0 +1,1 @@
+Booking/check-in/admin foundation implementation complete pending preview build validation and production activation decisions.
