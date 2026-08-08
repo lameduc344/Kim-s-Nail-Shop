@@ -1,0 +1,6 @@
+-- Production migration applied through Supabase on 2026-08-08.
+-- Creates salon_staff, salon_services, salon_appointments and salon_appointment_events;
+-- seeds the current website service catalog; enables RLS; adds staff policies;
+-- adds confirmation-code, public appointment, check-in, walk-in and audit helpers;
+-- public booking/check-in helpers are callable only by service_role so website API routes
+-- remain the rate-limited public boundary. See Supabase migration history for authoritative SQL.
