@@ -1,0 +1,3 @@
+Permanent QR target: https://kim-s-nail-shop.vercel.app/check-in
+Fallback redirect target: https://kim-s-nail-shop.vercel.app/check-in/qr
+Do not print a preview-deployment URL.
