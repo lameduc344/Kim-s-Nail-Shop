@@ -1,0 +1,2 @@
+Customer -> website booking/check-in API -> Supabase system of record -> staff Today Board -> optional POS adapter.
+The website remains operational if the POS is unavailable or not yet selected.
