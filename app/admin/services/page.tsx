@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { services as staticServices } from "@/data/services";
-import { requireAdminAccess } from "@/lib/admin/access";
+import { requirePermission } from "@/lib/admin/access";
 import { getNailSourceCatalogProjection } from "@/lib/nail-source/client";
 import { reconcileServices, type LegacyService, type ReconciliationReport } from "@/lib/nail-source/reconciliation";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -32,7 +32,7 @@ function Summary({ reports, authoritativeCount }: { reports: ReconciliationRepor
 }
 
 export default async function ServicesAdminPage() {
-  const access = await requireAdminAccess();
+  const access = await requirePermission("services:view");
   const db = createAdminClient();
   const [{ data: rows, error }, catalog] = await Promise.all([
     db.from("salon_services").select("id,category,name,description,base_price_cents,duration_minutes,active").order("sort_order"),

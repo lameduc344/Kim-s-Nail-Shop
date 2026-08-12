@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { NailSourceIntegrationStatus } from "@/components/NailSourceIntegrationStatus";
+import { requirePermission } from "@/lib/admin/access";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -7,7 +8,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 
-export default function IntegrationsPage() {
+export default async function IntegrationsPage() {
+  await requirePermission("integrations:view");
   return (
     <main className="shell admin-services-page">
       <div className="section-heading">

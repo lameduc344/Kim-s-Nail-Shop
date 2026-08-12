@@ -3,13 +3,20 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient as createUserClient } from "@/lib/supabase/server";
+import { isStaffRole, roleHasPermission, type StaffPermission, type StaffRole } from "@/lib/admin/permissions";
 
-export type AdminAccess = {
+export type { StaffPermission, StaffRole } from "@/lib/admin/permissions";
+
+export type StaffAccess = {
   user: { id: string; email?: string };
-  role: "owner" | "admin";
+  role: StaffRole;
 };
 
-export async function getAdminAccess(): Promise<AdminAccess | null> {
+export function hasPermission(access: StaffAccess, permission: StaffPermission) {
+  return roleHasPermission(access.role, permission);
+}
+
+export async function getStaffAccess(): Promise<StaffAccess | null> {
   const userClient = await createUserClient();
   const { data: { user } } = await userClient.auth.getUser();
   if (!user) return null;
@@ -21,13 +28,22 @@ export async function getAdminAccess(): Promise<AdminAccess | null> {
     .eq("user_id", user.id)
     .eq("active", true)
     .maybeSingle();
-  if (!staff || !["owner", "admin"].includes(staff.role)) return null;
+  if (!staff || !isStaffRole(staff.role)) return null;
 
-  return { user: { id: user.id, email: user.email }, role: staff.role as AdminAccess["role"] };
+  return { user: { id: user.id, email: user.email }, role: staff.role };
 }
 
-export async function requireAdminAccess(): Promise<AdminAccess> {
-  const access = await getAdminAccess();
-  if (!access) redirect("/staff-login");
+export async function requireStaffAccess(): Promise<StaffAccess> {
+  const access = await getStaffAccess();
+  if (!access) redirect("/staff-login?error=access_denied");
   return access;
 }
+
+export async function requirePermission(permission: StaffPermission): Promise<StaffAccess> {
+  const access = await requireStaffAccess();
+  if (!hasPermission(access, permission)) redirect("/admin/access-denied");
+  return access;
+}
+
+/** @deprecated Prefer a named permission check for new routes. */
+export const requireAdminAccess = requireStaffAccess;
