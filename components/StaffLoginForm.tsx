@@ -1,0 +1,5 @@
+"use client";
+import {FormEvent,useState} from "react";
+import {useRouter} from "next/navigation";
+import {createClient} from "@/lib/supabase/client";
+export function StaffLoginForm(){const [message,setMessage]=useState(""),router=useRouter();async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();const f=new FormData(e.currentTarget),supabase=createClient();const {error}=await supabase.auth.signInWithPassword({email:String(f.get("email")||""),password:String(f.get("password")||"")});if(error)setMessage("Sign-in failed. Check your staff credentials.");else{router.push("/admin");router.refresh();}}return <form className="booking-unavailable" onSubmit={submit}><h2>Staff sign in</h2><label>Email<input name="email" type="email" required/></label><label>Password<input name="password" type="password" required/></label><button className="button button-dark">Sign in</button>{message&&<p role="status">{message}</p>}</form>}
