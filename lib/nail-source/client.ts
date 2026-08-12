@@ -6,6 +6,7 @@ import {
   type NailSourceConfig,
 } from "@/lib/nail-source/config";
 import { createNailSourceAssertion } from "@/lib/nail-source/assertion";
+import { buildNailSourceCatalogProjection, catalogFailure, NailSourceRequestError } from "@/lib/nail-source/catalog";
 import type {
   NailSourceBusiness,
   NailSourceCatalogProjection,
@@ -13,21 +14,7 @@ import type {
   NailSourceIntegrationProjection,
   NailSourceLocation,
   NailSourceReadCapability,
-  NailSourceService,
-  NailSourceServicePricing,
 } from "@/lib/nail-source/types";
-import { isNailSourceServiceList, isNailSourceServicePricing } from "@/lib/nail-source/validation";
-
-class NailSourceRequestError extends Error {
-  constructor(
-    public readonly status: number,
-    public readonly code: string,
-    public readonly retryable: boolean,
-    public readonly correlationId?: string,
-  ) {
-    super(code);
-  }
-}
 
 async function invoke<T>(
   config: NailSourceConfig,
@@ -60,45 +47,14 @@ async function invoke<T>(
   return envelope;
 }
 
-function failureProjection(error: unknown, checkedAt: string): Pick<NailSourceCatalogProjection, "state" | "servicesState" | "pricingState" | "message"> {
-  if (error instanceof NailSourceConfigurationError) return { state: "MISCONFIGURED", servicesState: "MISCONFIGURED", pricingState: "MISCONFIGURED", message: "Nail Source service-read configuration is incomplete." };
-  if (error instanceof NailSourceRequestError) {
-    const state = error.status === 401 || error.status === 403 ? "UNAUTHORIZED" : "DEGRADED";
-    return { state, servicesState: state, pricingState: state, message: state === "UNAUTHORIZED" ? "Nail Source rejected the service-read identity or tenant scope." : "Nail Source returned an invalid or degraded service response." };
-  }
-  const timeout = error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError");
-  const state = timeout || error instanceof TypeError ? "UNREACHABLE" : "DEGRADED";
-  return { state, servicesState: state, pricingState: state, message: state === "UNREACHABLE" ? `Nail Source service reads were unreachable at ${checkedAt}.` : "Nail Source service reads failed closed." };
-}
-
 export async function getNailSourceCatalogProjection(): Promise<NailSourceCatalogProjection> {
-  const checkedAt = new Date().toISOString();
   try {
     const config = getNailSourceConfig();
-    const servicesResponse = await invoke<NailSourceService[]>(config, {
-      version: "v1", operation: "listServices", businessRef: config.businessRef,
-    }, "services:read");
-    if (!isNailSourceServiceList(servicesResponse.data)) throw new NailSourceRequestError(502, "malformed_response", false, servicesResponse.correlationId);
-    const priced = await Promise.all(servicesResponse.data.map(async (service) => {
-      const response = await invoke<NailSourceServicePricing>(config, {
-        version: "v1", operation: "getServicePricing", businessRef: config.businessRef,
-        locationRef: config.locationRef, serviceRef: service.service_ref,
-      }, "services:read");
-      if (!isNailSourceServicePricing(response.data)) throw new NailSourceRequestError(502, "malformed_response", false, response.correlationId);
-      return { service, pricing: response.data, correlationId: response.correlationId };
-    }));
-    return {
-      state: "CONNECTED", servicesState: "CONNECTED", pricingState: "CONNECTED", checkedAt,
-      lastSuccessfulReadAt: checkedAt,
-      correlationIds: [servicesResponse.correlationId, ...priced.map((item) => item.correlationId)],
-      services: priced.map(({ service, pricing }) => ({
-        ...service, effective_price_cents: pricing.price_cents, effective_currency: pricing.currency,
-        location_ref: config.locationRef, location_name: "Stonecrest", active: true,
-      })),
-      message: "Live from Nail Source. Nothing is persisted or synchronized into Kim’s legacy catalog.",
-    };
+    return await buildNailSourceCatalogProjection(config, <T>(body: Record<string, unknown>) => invoke<T>(config, body, "services:read"));
   } catch (error) {
-    return { ...failureProjection(error, checkedAt), checkedAt, correlationIds: error instanceof NailSourceRequestError && error.correlationId ? [error.correlationId] : [], services: [] };
+    const checkedAt = new Date().toISOString();
+    if (error instanceof NailSourceConfigurationError) return { state: "MISCONFIGURED", servicesState: "MISCONFIGURED", pricingState: "MISCONFIGURED", message: "Nail Source service-read configuration is incomplete.", checkedAt, correlationIds: [], services: [] };
+    return { ...catalogFailure(error, checkedAt), checkedAt, correlationIds: [], services: [] };
   }
 }
 

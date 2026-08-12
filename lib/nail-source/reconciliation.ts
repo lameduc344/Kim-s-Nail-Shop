@@ -1,8 +1,8 @@
 import type { NailSourceServiceProjection } from "./types";
 
 export const reconciliationStatuses = [
-  "MATCHED", "NAIL SOURCE ONLY", "LEGACY ONLY", "PRICE MISMATCH", "DURATION MISMATCH",
-  "NAME MISMATCH", "STATUS MISMATCH", "AMBIGUOUS",
+  "MATCHED", "NAIL_SOURCE_ONLY", "LEGACY_ONLY", "PRICE_MISMATCH", "DURATION_MISMATCH",
+  "NAME_MISMATCH", "STATUS_MISMATCH", "AMBIGUOUS",
 ] as const;
 export type ReconciliationStatus = (typeof reconciliationStatuses)[number];
 
@@ -40,6 +40,11 @@ export function reconcileServices(authoritative: NailSourceServiceProjection[], 
   const used = new Set<number>();
   const refs = new Map<string, number[]>();
   const names = new Map<string, number[]>();
+  const authoritativeNames = new Map<string, number>();
+  authoritative.forEach((item) => {
+    const name = normalizedServiceName(item.name);
+    authoritativeNames.set(name, (authoritativeNames.get(name) ?? 0) + 1);
+  });
   legacy.forEach((item, index) => {
     if (item.service_ref) refs.set(item.service_ref, [...(refs.get(item.service_ref) ?? []), index]);
     const name = normalizedServiceName(item.name);
@@ -48,16 +53,20 @@ export function reconcileServices(authoritative: NailSourceServiceProjection[], 
 
   for (const service of authoritative) {
     const refMatches = (refs.get(service.service_ref) ?? []).filter((index) => !used.has(index));
-    const candidates = refMatches.length
-      ? refMatches
-      : (names.get(normalizedServiceName(service.name)) ?? []).filter((index) => !used.has(index));
+    const normalizedName = normalizedServiceName(service.name);
+    const candidates = refMatches.length ? refMatches : (names.get(normalizedName) ?? []).filter((index) => !used.has(index));
+    if (!refMatches.length && (authoritativeNames.get(normalizedName) ?? 0) > 1) {
+      candidates.forEach((index) => used.add(index));
+      rows.push({ key: service.service_ref, authoritative: service, legacy: candidates.map((index) => legacy[index]), statuses: ["AMBIGUOUS"], differences: ["The normalized name is not unique in the authoritative catalog."] });
+      continue;
+    }
     if (candidates.length > 1) {
       candidates.forEach((index) => used.add(index));
       rows.push({ key: service.service_ref, authoritative: service, legacy: candidates.map((index) => legacy[index]), statuses: ["AMBIGUOUS"], differences: ["Multiple legacy records share the same deterministic match key."] });
       continue;
     }
     if (!candidates.length) {
-      rows.push({ key: service.service_ref, authoritative: service, legacy: [], statuses: ["NAIL SOURCE ONLY"], differences: ["No deterministic legacy match."] });
+      rows.push({ key: service.service_ref, authoritative: service, legacy: [], statuses: ["NAIL_SOURCE_ONLY"], differences: ["No deterministic legacy match."] });
       continue;
     }
     const index = candidates[0];
@@ -65,13 +74,13 @@ export function reconcileServices(authoritative: NailSourceServiceProjection[], 
     const item = legacy[index];
     const statuses: ReconciliationStatus[] = [];
     const differences: string[] = [];
-    if (item.name !== service.name) { statuses.push("NAME MISMATCH"); differences.push(`Name: legacy “${item.name}”; Nail Source “${service.name}”.`); }
-    if (item.base_price_cents !== service.effective_price_cents) { statuses.push("PRICE MISMATCH"); differences.push(`Price: legacy ${item.base_price_cents} cents; Nail Source ${service.effective_price_cents} cents.`); }
-    if (item.duration_minutes !== service.duration_minutes) { statuses.push("DURATION MISMATCH"); differences.push(`Duration: legacy ${item.duration_minutes} min; Nail Source ${service.duration_minutes} min.`); }
-    if (item.active !== service.active) { statuses.push("STATUS MISMATCH"); differences.push(`Status: legacy ${item.active ? "active" : "inactive"}; Nail Source active.`); }
+    if (item.name !== service.name) { statuses.push("NAME_MISMATCH"); differences.push(`Name: legacy “${item.name}”; Nail Source “${service.name}”.`); }
+    if (item.base_price_cents !== service.effective_price_cents) { statuses.push("PRICE_MISMATCH"); differences.push(`Price: legacy ${item.base_price_cents} cents; Nail Source ${service.effective_price_cents} cents.`); }
+    if (item.duration_minutes !== service.duration_minutes) { statuses.push("DURATION_MISMATCH"); differences.push(`Duration: legacy ${item.duration_minutes} min; Nail Source ${service.duration_minutes} min.`); }
+    if (item.active !== service.active) { statuses.push("STATUS_MISMATCH"); differences.push(`Status: legacy ${item.active ? "active" : "inactive"}; Nail Source active.`); }
     rows.push({ key: service.service_ref, authoritative: service, legacy: [item], statuses: statuses.length ? statuses : ["MATCHED"], differences });
   }
-  legacy.forEach((item, index) => { if (!used.has(index)) rows.push({ key: `legacy:${item.source}:${item.id}`, legacy: [item], statuses: ["LEGACY ONLY"], differences: ["No deterministic Nail Source match."] }); });
+  legacy.forEach((item, index) => { if (!used.has(index)) rows.push({ key: `legacy:${item.source}:${item.id}`, legacy: [item], statuses: ["LEGACY_ONLY"], differences: ["No deterministic Nail Source match."] }); });
   return {
     rows,
     counts: {
@@ -79,8 +88,8 @@ export function reconcileServices(authoritative: NailSourceServiceProjection[], 
       legacy: legacy.length,
       matched: rows.filter((row) => row.statuses.length === 1 && row.statuses[0] === "MATCHED").length,
       mismatched: rows.filter((row) => row.statuses.some((status) => status.includes("MISMATCH") || status === "AMBIGUOUS")).length,
-      legacyOnly: rows.filter((row) => row.statuses.includes("LEGACY ONLY")).length,
-      nailSourceOnly: rows.filter((row) => row.statuses.includes("NAIL SOURCE ONLY")).length,
+      legacyOnly: rows.filter((row) => row.statuses.includes("LEGACY_ONLY")).length,
+      nailSourceOnly: rows.filter((row) => row.statuses.includes("NAIL_SOURCE_ONLY")).length,
       ambiguous: rows.filter((row) => row.statuses.includes("AMBIGUOUS")).length,
     },
   };
