@@ -1,20 +1,12 @@
-import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { updateSession } from "@/lib/supabase/proxy";
 
-export function proxy() {
-  const response = NextResponse.next();
-
-  response.headers.set(
-    "Cache-Control",
-    "no-store, no-cache, must-revalidate, max-age=0",
-  );
-  response.headers.set("Pragma", "no-cache");
-  response.headers.set("Expires", "0");
-
-  return response;
+export async function proxy(request: NextRequest) {
+  return updateSession(request);
 }
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)",
   ],
 };
