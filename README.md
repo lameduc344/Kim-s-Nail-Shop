@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kim's Nails
 
-## Getting Started
+Production website and customer-facing experience for Kim's Nails.
 
-First, run the development server:
+## Production
+
+- Production branch: `main`
+- Permanent site: `https://kim-s-nail-shop.vercel.app`
+- Deployment: Vercel from `main`
+- Deployment procedure: see `DEPLOYMENT.md`
+
+`main` is the production source of truth. Do not use a Vercel preview URL as the public website.
+
+## Local development
+
+Use Node.js 20 and install the locked dependencies:
 
 ```bash
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Before opening a pull request or pushing a production change:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run lint
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Change workflow
 
-## Learn More
+Always begin from a current copy of production:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+git checkout main
+git pull --ff-only origin main
+git status
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Small, low-risk content corrections can use the fast lane described in `DEPLOYMENT.md`. Booking, database, authentication, API, dependency, configuration, and larger UI work must use a short-lived branch and pull request.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+GitHub Actions verifies lint and the production build on pull requests and pushes to `main`.
 
-## Deploy on Vercel
+## Data ownership
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The public service menu currently comes from `data/services.ts`. Do not duplicate that service list inside the booking UI.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The planned architecture makes Nail Source authoritative for live service records, pricing, availability, and bookings. Kim's Nails remains the customer-facing storefront.
+
+## Environment
+
+Use `.env.example` as the reference for required environment variables. Never commit secrets or production credentials.
+
+## Release rule
+
+A change is finished only after the intended commit is on `main`, CI passes, Vercel production matches that commit, and the permanent production URL has been verified.
