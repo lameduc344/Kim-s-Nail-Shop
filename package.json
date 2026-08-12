@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "npm run test:nail-source",
+    "test": "npm run test:admin && npm run test:nail-source",
+    "test:admin": "tsx --test tests/admin/*.test.ts",
     "test:nail-source": "tsx --test tests/nail-source/*.test.ts",
     "lint": "eslint"
   },

@@ -1,8 +1,10 @@
 # Studio admin activation
 
-Admin pages require a Supabase Auth user plus a matching active row in `public.salon_staff`. Roles supported by the schema are `owner`, `admin`, `front_desk`, and `technician`. Do not enable public signup for staff access. Create/verify the owner's Auth account, then add its UUID to `salon_staff` with role `owner` before production launch.
+Admin pages require a Supabase Auth user plus a matching active row in `public.salon_staff`. Roles supported by the schema are `owner`, `admin`, `manager`, `front_desk`, and `technician`. Do not enable public signup for staff access. Create staff identities manually in Supabase Auth, then add each Auth UUID to `salon_staff` with the least-privileged role required.
 
-The shared `/admin` layout now restricts the operating console to active `owner` and `admin` rows. This local role check is a transitional Kim's application authorization boundary; Nail Source independently authorizes its own tenant and capabilities.
+The shared `/admin` layout requires active staff membership. Every operational route also checks a named capability: owners/admins receive all current capabilities, managers can view services, bookings, and integration status, front desk can view bookings, and technicians can view services and bookings. This local role check is a transitional Kim's application authorization boundary; Nail Source independently authorizes its own tenant and capabilities.
+
+Password recovery uses `/auth/callback` to exchange the Supabase PKCE code before opening `/staff-login/update-password`. Add `https://kim-s-nail-shop.vercel.app/auth/callback` to Supabase Auth redirect URLs and configure production SMTP before relying on recovery email delivery.
 
 ## Nail Source Phase 1
 

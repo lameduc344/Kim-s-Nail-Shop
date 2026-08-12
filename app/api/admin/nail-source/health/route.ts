@@ -1,11 +1,11 @@
-import { getAdminAccess } from "@/lib/admin/access";
+import { getStaffAccess, hasPermission } from "@/lib/admin/access";
 import { getNailSourceCatalogProjection, getNailSourceIntegrationProjection } from "@/lib/nail-source/client";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const access = await getAdminAccess();
-  if (!access) {
+  const access = await getStaffAccess();
+  if (!access || !hasPermission(access, "integrations:view")) {
     return Response.json(
       { state: "UNAUTHORIZED", message: "Administrative access required." },
       { status: 403, headers: { "Cache-Control": "no-store" } },
