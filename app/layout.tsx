@@ -8,8 +8,8 @@ import "./mobile.css";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Kim's Nails | Luxury nail care celebrating Black beauty",
-  description: "Thoughtful, artful nail care in New York, celebrating Black and African American beauty.",
-  openGraph: { title: "Kim's Nails | Luxury nail care celebrating Black beauty", description: "Thoughtful, artful nail care in New York, celebrating Black and African American beauty.", type: "website", locale: "en_US", url: SITE_URL },
+  description: "Thoughtful, artful nail care in Stonecrest, Georgia, celebrating Black and African American beauty.",
+  openGraph: { title: "Kim's Nails | Luxury nail care celebrating Black beauty", description: "Thoughtful, artful nail care in Stonecrest, Georgia, celebrating Black and African American beauty.", type: "website", locale: "en_US", url: SITE_URL },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
