@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { DeploymentVersionWatcher } from "@/components/DeploymentVersionWatcher";
 import { getDeploymentVersion } from "@/lib/deployment-version";
 import { SITE_URL } from "@/lib/site";
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: { title: "Kim's Nails | Luxury nail care celebrating Black beauty", description: "Thoughtful, artful nail care in Stonecrest, Georgia, celebrating Black and African American beauty.", type: "website", locale: "en_US", url: SITE_URL },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   const deploymentVersion = getDeploymentVersion();
 
   return (
