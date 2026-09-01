@@ -22,7 +22,6 @@ export default async function CheckInSignPage() {
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 24 }}>
         <a className="button" href="/check-in-qr.svg" download="kims-nails-check-in-qr.svg">Download SVG Master</a>
-        <button className="button" type="button" onClick={undefined} style={{ display: "none" }}>Print</button>
         <Link className="button" href="/admin/check-ins">Back to Check-Ins</Link>
       </div>
 
