@@ -9,6 +9,10 @@ function clean(value: FormDataEntryValue | null, max: number) {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
 
+function normalizePhone(value: string) {
+  return value.replace(/\D+/g, "");
+}
+
 export async function POST(request: Request) {
   const form = await request.formData();
   const customerName = clean(form.get("customer_name"), MAX_NAME);
@@ -23,6 +27,33 @@ export async function POST(request: Request) {
 
   try {
     const admin = createAdminClient();
+    const now = new Date().toISOString();
+    const normalizedPhone = normalizePhone(phone);
+
+    if (normalizedPhone.length >= 7) {
+      const { data: existing } = await admin.from("salon_customers")
+        .select("id,visit_count")
+        .eq("phone", phone)
+        .maybeSingle();
+
+      if (existing) {
+        await admin.from("salon_customers").update({
+          full_name: customerName,
+          visit_count: Number(existing.visit_count || 0) + 1,
+          last_visit_at: now,
+          updated_at: now,
+        }).eq("id", existing.id);
+      } else {
+        await admin.from("salon_customers").insert({
+          full_name: customerName,
+          phone,
+          visit_count: 1,
+          last_visit_at: now,
+          source: "qr",
+        });
+      }
+    }
+
     const { error } = await admin.from("salon_checkins").insert({
       customer_name: customerName,
       phone: phone || null,
