@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { requireAdminAccess } from "@/lib/admin/access";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -28,8 +29,13 @@ export default async function CheckInsAdminPage() {
   return (
     <main className="shell" style={{ paddingTop: 36, paddingBottom: 72 }}>
       <p className="eyebrow">Front Desk</p>
-      <h1>Check-In Queue</h1>
-      <p>Customer check-ins from the salon QR/link appear here newest first.</p>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
+        <div>
+          <h1>Check-In Queue</h1>
+          <p>Customer check-ins from the salon QR/link appear here newest first.</p>
+        </div>
+        <Link className="button" href="/admin/check-ins/sign">QR Sign / Export</Link>
+      </div>
 
       {error ? <p role="alert">The queue is unavailable until the check-in migration is deployed.</p> : null}
       {!error && !checkins?.length ? <p>No check-ins yet.</p> : null}
