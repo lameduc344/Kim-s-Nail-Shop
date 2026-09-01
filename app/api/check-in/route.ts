@@ -33,12 +33,13 @@ export async function POST(request: Request) {
     if (normalizedPhone.length >= 7) {
       const { data: existing } = await admin.from("salon_customers")
         .select("id,visit_count")
-        .eq("phone", phone)
+        .eq("phone_normalized", normalizedPhone)
         .maybeSingle();
 
       if (existing) {
         await admin.from("salon_customers").update({
           full_name: customerName,
+          phone,
           visit_count: Number(existing.visit_count || 0) + 1,
           last_visit_at: now,
           updated_at: now,
