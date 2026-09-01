@@ -79,8 +79,20 @@ export default async function DocumentVaultPage() {
   return (
     <main className="shell" style={{ paddingTop: 36, paddingBottom: 72 }}>
       <p className="eyebrow">Private Records</p>
-      <h1>Document Vault</h1>
-      <p>Store salon records in a private bucket. Download links expire after 10 minutes.</p>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
+        <div>
+          <h1>Document Vault</h1>
+          <p>Store salon records in a private bucket. Download links expire after 10 minutes.</p>
+        </div>
+        <a className="button" href="/api/admin/document-vault/export?category=all">Export All as ZIP</a>
+      </div>
+
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 16 }}>
+        {categories.map((category) => (
+          <a key={category} href={`/api/admin/document-vault/export?category=${category}`} className="text-link">Export {category} ZIP</a>
+        ))}
+      </div>
+      <p style={{ marginTop: 12 }}>ZIP exports include the original files plus a manifest.csv. Large archives over 75 MB must be exported by category.</p>
 
       <form action={uploadDocument} className="card" style={{ display: "grid", gap: 14, marginTop: 24 }}>
         <h2>Add document</h2>
